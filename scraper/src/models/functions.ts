@@ -3,7 +3,7 @@ import express, { Express, Request, Response, response } from "express";
 import axios from "axios";
 import cheerio from "cheerio";
 import getUrls from "get-urls";
-import { url } from "../data/costant.js";
+import { url, url_conad_gustalla } from "../data/costant.js";
 import puppeteer, { Browser } from "puppeteer";
 
 /**
@@ -103,9 +103,8 @@ export const main = async () => {
 };
 
 /**
- * THIRD TEST
+ * @description Function to scrape column from Eurostat
  */
-
 export const main_eu = async () => {
   let browser: Browser;
 
@@ -148,5 +147,79 @@ export const main_eu = async () => {
     console.log(`Error ${e}`);
   } finally {
     await browser.close();
+  }
+};
+
+/**
+ * @description CONAD test
+ */
+
+export const conad_promotions = async () => {
+  let browser: Browser;
+  try {
+    browser = await puppeteer.launch({
+      headless: false,
+      defaultViewport: { width: 1280, height: 800 },
+    });
+    const page = await browser.newPage();
+
+    await page.setDefaultNavigationTimeout(60000);
+    await page.goto(url_conad_gustalla);
+    console.log("Pagina aperta 🔍");
+
+    const divId = "#filter-meccanicaPromozione_string";
+    const privacyPolicy = ".ot-sdk-row";
+    const filtersProducts = ".rt071-flyer-filters__filters";
+    const filterProductsSelected =
+      "rt031-filter rt071-flyer-filters__filter.open";
+
+    const filterWrapper = "rt150-disaggregated-flyer__filtersWrapper";
+    const tableGridId =
+      "rt150-disaggregated-flyer__wrapper rt150-disaggregated-flyer__wrapper--grid";
+
+    await page.waitForSelector(privacyPolicy);
+    await page.waitForSelector(divId);
+
+    await page.waitForSelector("#onetrust-accept-btn-handler");
+    await page.click("#onetrust-accept-btn-handler");
+    await page.waitForSelector("#onetrust-group-container", { hidden: true });
+
+    // await page.waitForSelector(filterProductsSelected);
+
+    // const button: any = await page.$x(
+    //   "//button[contains(text(), 'Promozioni')]"
+    // );
+    // await button[0].click();
+
+    const [promozioniButton]: any = await page.$x(
+      "//button[contains(., 'Promozioni') and contains(@class, 'rt031-filter__btn')]"
+    );
+    await promozioniButton.click();
+
+    //TODO: selezionatre la checkbox Taglio prezzo
+
+    /**
+     * Reasearch fot html code
+     */
+    const divTaglioPrezzo = await page.$(
+      'div.rt032-filter-popup__option[data-name="TAGLIO PREZZO"]'
+    );
+
+    const text = await divTaglioPrezzo.evaluate((e) => e.innerHTML);
+
+    console.log("____________________");
+    console.log(text);
+    console.log("____________________");
+
+    // const formClass = ".rt032-filter-popup__form.ps";
+    // const inputId = "#HBh9EyBWFj-opt-0-checkbox-TAGLIO-PREZZO-input";
+    // const checkboxLabelClass = ".rt003-checkbox__label";
+
+    // await page.click(`${formClass} ${checkboxLabelClass} [for='${inputId}']`);
+  } catch (e) {
+    console.log(`Error ${e}`);
+  } finally {
+    // await browser.close();
+    console.log("FATTO!");
   }
 };

@@ -1,5 +1,5 @@
 import express from "express";
-import { main_eu, scrapeData } from "./models/functions.js";
+import { conad_promotions, scrapeData } from "./models/functions.js";
 // import puppeteer from "puppeteer-core";
 // import { Browser } from "puppeteer";
 //PORT OF SERVER
@@ -24,7 +24,7 @@ app.get("/test", async (req, res) => {
     res.send(data);
 });
 //test puppeteer
-main_eu();
+conad_promotions();
 /**
  * LISTEN AREA
  */

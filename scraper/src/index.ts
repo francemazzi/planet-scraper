@@ -9,7 +9,7 @@ import { text } from "stream/consumers";
 import { request } from "http";
 import cors from "cors";
 import puppeteer, { Browser } from "puppeteer";
-import { main_eu, scrapeData } from "./models/functions.js";
+import { conad_promotions, main_eu, scrapeData } from "./models/functions.js";
 import { url } from "../src/data/costant.js";
 
 // import puppeteer from "puppeteer-core";
@@ -42,7 +42,7 @@ app.get("/test", async (req: Request, res: Response) => {
 });
 
 //test puppeteer
-main_eu();
+conad_promotions();
 
 /**
  * LISTEN AREA
