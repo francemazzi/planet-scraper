@@ -184,38 +184,78 @@ export const conad_promotions = async () => {
     await page.click("#onetrust-accept-btn-handler");
     await page.waitForSelector("#onetrust-group-container", { hidden: true });
 
-    // await page.waitForSelector(filterProductsSelected);
-
-    // const button: any = await page.$x(
-    //   "//button[contains(text(), 'Promozioni')]"
-    // );
-    // await button[0].click();
-
     const [promozioniButton]: any = await page.$x(
       "//button[contains(., 'Promozioni') and contains(@class, 'rt031-filter__btn')]"
     );
     await promozioniButton.click();
 
-    //TODO: selezionatre la checkbox Taglio prezzo
+    //TODO: Se ci sono elementi nella tabella, se ci sono clicchi ancora se soo finiti stampi gli elementi
+
+    const [loadMorePromotionProductButton]: any = await page.$x(
+      "//div[contains(., 'Carica altri') and contains(@class, 'rt072-disaggregated-block__loadMore')]"
+    );
+    // await loadMorePromotionProductButton.click();
+
+    do {
+      await loadMorePromotionProductButton.click();
+    } while (loadMorePromotionProductButton);
+
+    const products = [];
+
+    await page.waitForSelector(".rt072-disaggregated-block__wrapper");
+    const divTab = await page.$(".rt072-disaggregated-block__wrapper");
+    const elements = await divTab.$$eval(
+      ".rt213-card-product-flyer",
+      (elements) => {
+        return elements.map((element) => {
+          const name =
+            element.querySelector(".rt213-card-product-flyer__title")
+              ?.textContent || "";
+          const price =
+            element.querySelector(".rt213-card-product-flyer__finalPrice")
+              ?.textContent || "";
+          const img =
+            element
+              .querySelector(".rt213-card-product-flyer__image")
+              ?.getAttribute("src") || "";
+          const unitCost =
+            element.querySelector(".rt213-card-product-flyer__priceText")
+              ?.textContent || "";
+          const promotion =
+            element.querySelector(".rt213-card-product-flyer__promotion")
+              ?.textContent || 0;
+          const validity =
+            element.querySelector(".rt213-card-product-flyer__validity")
+              ?.textContent || "";
+          return { name, price, img, unitCost, promotion, validity };
+        });
+      }
+    );
+
+    console.log(elements);
+
+    //TODO: selezionatre la checkbox Taglio prezzo -> filtro hard
+
+    // const checkBoxTagliaPrezzo: any = await page.waitForXPath(
+    //   'input[name="TAGLIO PREZZO"]'
+    // );
+    // await checkBoxTagliaPrezzo.click({ clickCount: 1 });
+    // await page.waitForSelector('input[name="TAGLIO PREZZO"]');
+    // const checkbox = await page.$('input[name="TAGLIO PREZZO"]');
+    // await checkbox?.click();
+
+    // await label.click();
 
     /**
      * Reasearch fot html code
      */
-    const divTaglioPrezzo = await page.$(
-      'div.rt032-filter-popup__option[data-name="TAGLIO PREZZO"]'
-    );
+    // const divTaglioPrezzo = await page.$(".rt072-disaggregated-block__wrapper");
 
-    const text = await divTaglioPrezzo.evaluate((e) => e.innerHTML);
+    // const text = await divTaglioPrezzo.evaluate((e) => e.innerHTML);
 
-    console.log("____________________");
-    console.log(text);
-    console.log("____________________");
-
-    // const formClass = ".rt032-filter-popup__form.ps";
-    // const inputId = "#HBh9EyBWFj-opt-0-checkbox-TAGLIO-PREZZO-input";
-    // const checkboxLabelClass = ".rt003-checkbox__label";
-
-    // await page.click(`${formClass} ${checkboxLabelClass} [for='${inputId}']`);
+    // console.log("____________________");
+    // console.log(text);
+    // console.log("____________________");
   } catch (e) {
     console.log(`Error ${e}`);
   } finally {
