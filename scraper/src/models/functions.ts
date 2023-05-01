@@ -3,7 +3,7 @@ import express, { Express, Request, Response, response } from "express";
 import axios from "axios";
 import cheerio from "cheerio";
 import getUrls from "get-urls";
-import { url } from "../data/costant.js";
+import { url, url_conad_gustalla } from "../data/costant.js";
 import puppeteer, { Browser } from "puppeteer";
 
 /**
@@ -103,9 +103,8 @@ export const main = async () => {
 };
 
 /**
- * THIRD TEST
+ * @description Function to scrape column from Eurostat
  */
-
 export const main_eu = async () => {
   let browser: Browser;
 
@@ -148,5 +147,119 @@ export const main_eu = async () => {
     console.log(`Error ${e}`);
   } finally {
     await browser.close();
+  }
+};
+
+/**
+ * @description CONAD test
+ */
+
+export const conad_promotions = async () => {
+  let browser: Browser;
+  try {
+    browser = await puppeteer.launch({
+      headless: false,
+      defaultViewport: { width: 1280, height: 800 },
+    });
+    const page = await browser.newPage();
+
+    await page.setDefaultNavigationTimeout(60000);
+    await page.goto(url_conad_gustalla);
+    console.log("Pagina aperta 🔍");
+
+    const divId = "#filter-meccanicaPromozione_string";
+    const privacyPolicy = ".ot-sdk-row";
+    const filtersProducts = ".rt071-flyer-filters__filters";
+    const filterProductsSelected =
+      "rt031-filter rt071-flyer-filters__filter.open";
+
+    const filterWrapper = "rt150-disaggregated-flyer__filtersWrapper";
+    const tableGridId =
+      "rt150-disaggregated-flyer__wrapper rt150-disaggregated-flyer__wrapper--grid";
+
+    await page.waitForSelector(privacyPolicy);
+    await page.waitForSelector(divId);
+
+    await page.waitForSelector("#onetrust-accept-btn-handler");
+    await page.click("#onetrust-accept-btn-handler");
+    await page.waitForSelector("#onetrust-group-container", { hidden: true });
+
+    const [promozioniButton]: any = await page.$x(
+      "//button[contains(., 'Promozioni') and contains(@class, 'rt031-filter__btn')]"
+    );
+    await promozioniButton.click();
+
+    //TODO: Se ci sono elementi nella tabella, se ci sono clicchi ancora se soo finiti stampi gli elementi
+
+    const [loadMorePromotionProductButton]: any = await page.$x(
+      "//div[contains(., 'Carica altri') and contains(@class, 'rt072-disaggregated-block__loadMore')]"
+    );
+    // await loadMorePromotionProductButton.click();
+
+    do {
+      await loadMorePromotionProductButton.click();
+    } while (loadMorePromotionProductButton);
+
+    const products = [];
+
+    await page.waitForSelector(".rt072-disaggregated-block__wrapper");
+    const divTab = await page.$(".rt072-disaggregated-block__wrapper");
+    const elements = await divTab.$$eval(
+      ".rt213-card-product-flyer",
+      (elements) => {
+        return elements.map((element) => {
+          const name =
+            element.querySelector(".rt213-card-product-flyer__title")
+              ?.textContent || "";
+          const price =
+            element.querySelector(".rt213-card-product-flyer__finalPrice")
+              ?.textContent || "";
+          const img =
+            element
+              .querySelector(".rt213-card-product-flyer__image")
+              ?.getAttribute("src") || "";
+          const unitCost =
+            element.querySelector(".rt213-card-product-flyer__priceText")
+              ?.textContent || "";
+          const promotion =
+            element.querySelector(".rt213-card-product-flyer__promotion")
+              ?.textContent || 0;
+          const validity =
+            element.querySelector(".rt213-card-product-flyer__validity")
+              ?.textContent || "";
+          return { name, price, img, unitCost, promotion, validity };
+        });
+      }
+    );
+
+    console.log(elements);
+
+    //TODO: selezionatre la checkbox Taglio prezzo -> filtro hard
+
+    // const checkBoxTagliaPrezzo: any = await page.waitForXPath(
+    //   'input[name="TAGLIO PREZZO"]'
+    // );
+    // await checkBoxTagliaPrezzo.click({ clickCount: 1 });
+    // await page.waitForSelector('input[name="TAGLIO PREZZO"]');
+    // const checkbox = await page.$('input[name="TAGLIO PREZZO"]');
+    // await checkbox?.click();
+
+    // await label.click();
+
+    /**
+     * Reasearch fot html code
+     */
+    // const divTaglioPrezzo = await page.$(".rt072-disaggregated-block__wrapper");
+
+    // const text = await divTaglioPrezzo.evaluate((e) => e.innerHTML);
+
+    // console.log("____________________");
+    // console.log(text);
+    // console.log("____________________");
+  } catch (e) {
+    console.log(`Error ${e}`);
+  } finally {
+    // await browser.close();
+    console.log("FATTO!");
   }
 };
