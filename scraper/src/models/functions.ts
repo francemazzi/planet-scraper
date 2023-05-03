@@ -288,25 +288,30 @@ export const conad_promotions = async () => {
       (elements) => {
         return elements.map((element) => {
           const name =
-            element.querySelector(".rt213-card-product-flyer__title")
-              ?.textContent || "";
+            element
+              .querySelector(".rt213-card-product-flyer__title")
+              ?.textContent.trim() || "";
           const price =
-            element.querySelector(".rt213-card-product-flyer__finalPrice")
-              ?.textContent || "";
+            element
+              .querySelector(".rt213-card-product-flyer__finalPrice")
+              ?.textContent.trim() || "";
           const img =
             element
               .querySelector(".rt213-card-product-flyer__image")
               ?.getAttribute("src") || "";
           const unitCost =
-            element.querySelector(".rt213-card-product-flyer__priceText")
-              ?.textContent || "";
+            element
+              .querySelector(".rt213-card-product-flyer__priceText")
+              ?.textContent.trim() || "";
 
           const promotion =
-            element.querySelector(".rt213-card-product-flyer__promotion")
-              ?.textContent || 0;
+            element
+              .querySelector(".rt213-card-product-flyer__promotion")
+              ?.textContent.trim() || 0;
           const validity =
-            element.querySelector(".rt213-card-product-flyer__validity")
-              ?.textContent || "";
+            element
+              .querySelector(".rt213-card-product-flyer__validity")
+              ?.textContent.trim() || "";
           return { name, price, img, unitCost, promotion, validity };
         });
       }

@@ -212,19 +212,24 @@ export const conad_promotions = async () => {
         }
         const elementsData = await divTab.$$eval(".rt213-card-product-flyer.rt072-disaggregated-block__card", (elements) => {
             return elements.map((element) => {
-                const name = element.querySelector(".rt213-card-product-flyer__title")
-                    ?.textContent || "";
-                const price = element.querySelector(".rt213-card-product-flyer__finalPrice")
-                    ?.textContent || "";
+                const name = element
+                    .querySelector(".rt213-card-product-flyer__title")
+                    ?.textContent.trim() || "";
+                const price = element
+                    .querySelector(".rt213-card-product-flyer__finalPrice")
+                    ?.textContent.trim() || "";
                 const img = element
                     .querySelector(".rt213-card-product-flyer__image")
                     ?.getAttribute("src") || "";
-                const unitCost = element.querySelector(".rt213-card-product-flyer__priceText")
-                    ?.textContent || "";
-                const promotion = element.querySelector(".rt213-card-product-flyer__promotion")
-                    ?.textContent || 0;
-                const validity = element.querySelector(".rt213-card-product-flyer__validity")
-                    ?.textContent || "";
+                const unitCost = element
+                    .querySelector(".rt213-card-product-flyer__priceText")
+                    ?.textContent.trim() || "";
+                const promotion = element
+                    .querySelector(".rt213-card-product-flyer__promotion")
+                    ?.textContent.trim() || 0;
+                const validity = element
+                    .querySelector(".rt213-card-product-flyer__validity")
+                    ?.textContent.trim() || "";
                 return { name, price, img, unitCost, promotion, validity };
             });
         });
