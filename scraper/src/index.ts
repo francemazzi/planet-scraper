@@ -1,5 +1,11 @@
 import fs from "fs";
-import express, { Express, Request, Response, response } from "express";
+import express, {
+  Express,
+  NextFunction,
+  Request,
+  Response,
+  response,
+} from "express";
 import axios from "axios";
 import cheerio from "cheerio";
 import { title } from "process";
@@ -28,19 +34,16 @@ app.get("/", (req: Request, res: Response) => {
   res.send("TEST 4 🧑🏻‍💻");
 });
 
-//TODO: optimize functions for scraping data
-//TODO: install react + tailwind to show data in a better way
-//TODO: optimize conad_promotions() with axios + cheerio
+function loadingMiddleware(req: Request, res: Response, next: NextFunction) {
+  res.write("Dati in caricamento 🧑🏻‍💻, attendi...");
+  next();
+}
 
-app.get("/data", async (req: Request, res: Response) => {
+app.get("/data", loadingMiddleware, async (req: Request, res: Response) => {
   try {
-    const body = JSON.parse(req.body);
+    const data = await conad_promotions();
 
-    const dataPromise: Promise<ConadProduct[]> = conad_promotions();
-    res.send("Dati aperti attendi... 🧑🏻‍💻");
-    const data = await dataPromise;
-
-    res.status(200).json({ data: data });
+    res.status(200).json({ data });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
