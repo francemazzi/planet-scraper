@@ -8,9 +8,11 @@ const app = express();
 /**
  * ROUTING AREA
  */
-app.get("/", (req, res) => { });
+app.get("/", (req, res) => {
+    res.send("Vai su http://localhost:8000/data per vedere i dati");
+});
 function loadingMiddleware(req, res, next) {
-    res.write("Dati in caricamento 🧑🏻‍💻, attendi...");
+    console.log("Dati in caricamento, attendi...");
     next();
 }
 app.get("/data", loadingMiddleware, async (req, res) => {

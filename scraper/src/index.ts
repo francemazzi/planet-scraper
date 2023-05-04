@@ -31,10 +31,12 @@ const app: Express = express();
 /**
  * ROUTING AREA
  */
-app.get("/", (req: Request, res: Response) => {});
+app.get("/", (req: Request, res: Response) => {
+  res.send("Vai su http://localhost:8000/data per vedere i dati");
+});
 
 function loadingMiddleware(req: Request, res: Response, next: NextFunction) {
-  res.write("Dati in caricamento 🧑🏻‍💻, attendi...");
+  console.log("Dati in caricamento, attendi...");
   next();
 }
 
