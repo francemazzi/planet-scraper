@@ -1,5 +1,5 @@
 import express from "express";
-import { conad_promotions, scrapeData } from "./models/functions.js";
+import { conad_promotions } from "./models/functions.js";
 // import puppeteer from "puppeteer-core";
 // import { Browser } from "puppeteer";
 //PORT OF SERVER
@@ -8,9 +8,7 @@ const app = express();
 /**
  * ROUTING AREA
  */
-app.get("/", (req, res) => {
-    res.send("TEST 4 🧑🏻‍💻");
-});
+app.get("/", (req, res) => { });
 function loadingMiddleware(req, res, next) {
     res.write("Dati in caricamento 🧑🏻‍💻, attendi...");
     next();
@@ -18,20 +16,12 @@ function loadingMiddleware(req, res, next) {
 app.get("/data", loadingMiddleware, async (req, res) => {
     try {
         const data = await conad_promotions();
+        // const coop_promotion = await coop_promotion();
         res.status(200).json({ data });
     }
     catch (error) {
         res.status(500).json({ error: error.message });
     }
-});
-//TEST FIRST SCAPER
-app.get("/test", async (req, res) => {
-    const body = JSON.parse(req.body);
-    const data = await scrapeData(body.text);
-    res.send("DATI - body 🧑🏻‍💻");
-    res.send(body);
-    res.send("DATI - data 🧑🏻‍💻");
-    res.send(data);
 });
 //test puppeteer
 const dataPromise = conad_promotions();
