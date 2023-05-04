@@ -162,7 +162,7 @@ export const conad_promotions = async () => {
       defaultViewport: { width: 1280, height: 800 },
     });
     const page = await browser.newPage();
-
+    console.log("Browser aperto 🔍");
     await page.setDefaultNavigationTimeout(60000);
     await page.goto(url_conad_gustalla);
     console.log("Pagina aperta 🔍");
@@ -317,7 +317,7 @@ export const conad_promotions = async () => {
       }
     );
     await browser.close();
-    console.log("FATTO!");
+    console.log("Dati scaricati correttamente!");
     return elementsData;
 
     /**
