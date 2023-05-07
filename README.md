@@ -1,6 +1,6 @@
 ## This is my simple boilerplate for node.js with typescript
 
-This boilerplate was created using express.js and node.js, and pptr (puppeteer) to scrape data from websites. The application runs on http://localhost:8000/.
+This boilerplate was created using express.js and node.js, and pptr (puppeteer) to scrape data from websites. The application runs on http://localhost:8080/.
 
 # Importing data
 

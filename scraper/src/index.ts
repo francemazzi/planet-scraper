@@ -24,10 +24,11 @@ import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import compression from "compression";
 import mongoose from "mongoose";
+import router from "./router/index.js";
 
-//MONGODB
+//MONGODB - francemazzi -
 const MONGO_URL =
-  "mongodb+srv://francemazzi:Piadina.2023@cluster0.mkfe9qu.mongodb.net/?retryWrites=true&w=majority";
+  "mongodb+srv://francemazzi:8ubrtNcMUUPuTqQy@cluster0.scfwyi8.mongodb.net/?retryWrites=true&w=majority";
 
 mongoose.Promise = Promise;
 mongoose.connect(MONGO_URL);
@@ -36,7 +37,7 @@ mongoose.connection.on("error", (error: Error) =>
 );
 
 //PORT OF SERVER
-const port = 8000;
+const port = 8080;
 
 const app: Express = express();
 
@@ -56,17 +57,22 @@ const server = http.createServer(app);
 /**
  * LISTEN AREA
  */
-app.listen(port, () => {
+server.listen(port, () => {
   var emoji = String.fromCodePoint(0x1f9be);
   console.log(`${emoji} IN ASCOLTO ALLA PORTA ${port}`);
-  console.log("http://localhost:8000/");
+  console.log("http://localhost:8080/");
 });
 
 /**
- * ROUTING AREA
+ * ROUTING AREA - NEW
  */
-app.get("/", (req: Request, res: Response) => {
-  res.send("Vai su http://localhost:8000/data per vedere i dati");
+app.use("/", router());
+
+/**
+ * ROUTING AREA - OLD
+ */
+app.get("/home", (req: Request, res: Response) => {
+  res.send("Vai su http://localhost:8080/data per vedere i dati");
 });
 
 function loadingMiddleware(req: Request, res: Response, next: NextFunction) {
