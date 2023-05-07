@@ -80,30 +80,3 @@ mongoose.connection.on("error", (error: Error) =>
  * ROUTING AREA - NEW
  */
 app.use("/", router());
-
-/**
- * ROUTING AREA - OLD
- */
-// app.get("/", (req: Request, res: Response) => {
-//   res.send("Vai su http://localhost:8080/data per vedere i dati");
-// });
-
-// function loadingMiddleware(req: Request, res: Response, next: NextFunction) {
-//   console.log("Dati in caricamento, attendi...");
-//   next();
-// }
-
-// app.get("/data", loadingMiddleware, async (req: Request, res: Response) => {
-//   try {
-//     const data = await conad_promotions();
-
-//     res.status(200).json({ data });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
-
-// const dataPromise: Promise<ConadProduct[]> = conad_promotions();
-// dataPromise.then((data) => {
-//   console.log(data);
-// });

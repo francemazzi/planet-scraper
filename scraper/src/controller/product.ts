@@ -1,5 +1,5 @@
 import express from "express";
-import { createProduct, getProductbyId } from "../db/models/product_model.js";
+import { createProduct, getProducByName } from "../db/models/product_model.js";
 import { conad_promotions } from "../models/functions.js";
 import { ConadProduct } from "../models/types.js";
 
@@ -14,6 +14,7 @@ export const saveProduct = async (
         const {
           name = product.name,
           price = product.price,
+          supermarket = "conad",
           img = product.img,
           unitCost = product.unitCost,
           promotion = product.promotion,
@@ -23,10 +24,16 @@ export const saveProduct = async (
         if (!name || !price || !img || !unitCost || !promotion || !validity) {
           return null;
         }
-        console.log("DATA 1" + req.body);
+
+        const existingProduct = await getProducByName(product.name);
+        if (existingProduct && existingProduct.price == price) {
+          return res.sendStatus(400);
+        }
+
         const newProduct = await createProduct({
           name,
           price,
+          supermarket,
           img,
           unitCost,
           promotion,
