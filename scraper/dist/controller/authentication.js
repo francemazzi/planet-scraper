@@ -1,28 +1,29 @@
 import { getUserByEmail, createUser } from "../db/models/user_model.js";
-import { autentication, random } from "../helper/index.js";
+import { authentication, random } from "../helper/index.js";
 export const register = async (req, res) => {
+    const { email, password, username } = req.body;
     try {
-        const { email, password, username } = req.body;
         if (!email || !password || !username) {
             return res.sendStatus(400);
         }
-        const existUser = await getUserByEmail(email);
-        if (existUser) {
+        const existingUser = await getUserByEmail(email);
+        if (existingUser) {
             return res.sendStatus(400);
         }
         const salt = random();
         const user = await createUser({
             email,
             username,
-            autentication: {
+            authentication: {
                 salt,
-                password: autentication(salt, password),
+                password: authentication(salt, password),
             },
         });
         return res.status(200).json(user).end();
     }
     catch (error) {
-        console.log("ERRORE AUTH REGISTER " + error);
+        console.log("ERR REQ" + req.body);
+        console.log(error);
         return res.sendStatus(400);
     }
 };

@@ -1,6 +1,12 @@
 import mongoose from "mongoose";
 
 const ProductSchema = new mongoose.Schema({
+  _id: {
+    type: String,
+    default: function () {
+      return Math.random().toString(36).slice(2, 9);
+    },
+  },
   name: { type: String, required: true },
   price: { type: String, required: true },
   img: { type: String, required: true },
