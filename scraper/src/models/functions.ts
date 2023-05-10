@@ -3,153 +3,9 @@ import express, { Express, Request, Response, response } from "express";
 import axios from "axios";
 import cheerio from "cheerio";
 import getUrls from "get-urls";
-import { url, url_conad_gustalla } from "../data/costant.js";
+import { url, url_conad_gustalla, url_coop_emilia } from "../data/costant.js";
 import puppeteer, { Browser } from "puppeteer";
 import { ConadProduct } from "./types.js";
-
-/**
- * FIRST TEST WITH AXIOS
- */
-
-//TEST AREA for scraper
-
-axios(url)
-  .then(async (response) => {
-    const html = await response.data;
-    const $ = cheerio.load(html);
-    const data = [];
-
-    $(".infobox__title", html).each((index, element) => {
-      const titleOfData = $(element).text();
-      console.log(titleOfData);
-      data.push({ titleOfData });
-    });
-    console.log(data);
-  })
-  .catch((error) => {
-    console.log("ERRORE " + error);
-  });
-
-//TEST DATA FIRESTORE
-export const scrapeData = (text) => {
-  const urls = Array.from(getUrls(text));
-  const request = urls.map(async (url) => {
-    const res = await fetch(url);
-    const html = await res.text();
-    const $ = cheerio.load(html);
-    const getMetatag = (name) =>
-      $(`meta[name${name}]`).attr("content") ||
-      $(`meta[property="og:${name}"]`).attr("content") ||
-      $(`meta[property="twitter:${name}"]`).attr("content");
-
-    return {
-      url,
-      title: $("title").text(),
-      favicon: $('link[rel="shortcut icon"]').attr("href"),
-      // description: $("meta[name=description]").attr("content"),
-
-      description: getMetatag("description"),
-      image: getMetatag("image"),
-      author: getMetatag("author"),
-    };
-  });
-
-  return Promise.all(request);
-};
-
-async function getTextFromUrl(url: string): Promise<string[]> {
-  try {
-    const response = await axios.get(url);
-    const html = response.data;
-    const $ = cheerio.load(html);
-
-    const data: string[] = [];
-
-    $(".infobox__title ux-u-color-primary").each((index, element) => {
-      const text = $(element).text();
-      console.log(element);
-      data.push(text);
-    });
-    return data;
-  } catch (error) {
-    console.log("ERRORE " + error);
-    return [];
-  }
-}
-
-getTextFromUrl(url).then((data) => {
-  console.log(`data ${data}`);
-});
-
-/**
- * SECOND TEST WITH brightdata
- */
-
-export const main = async () => {
-  let browser: Browser;
-
-  try {
-    browser = await puppeteer.connect({
-      browserWSEndpoint: "wss://",
-    });
-    //puppeteer.launch({ headless: false });
-
-    const page = await browser.newPage();
-    await page.goto(url);
-  } catch (e) {
-    console.log(`Error ${e}`);
-  } finally {
-    await browser?.close();
-  }
-};
-
-/**
- * @description Function to scrape column from Eurostat
- */
-export const main_eu = async () => {
-  let browser: Browser;
-
-  try {
-    browser = await puppeteer.launch({
-      headless: false,
-      defaultViewport: { width: 1280, height: 800 },
-    });
-
-    const page = await browser.newPage();
-
-    await page.setDefaultNavigationTimeout(60000);
-    await page.goto(url);
-    console.log("Pagina aperta 🔍");
-
-    const classNameData: string =
-      ".colHeader.header-overflow.table-header-container";
-
-    const classOfSpan: string = ".table-header-text";
-    const classOfDiv: string = ".ag-pinned-left-cols-container";
-
-    await page.waitForSelector(classNameData);
-
-    const table_data = await page.evaluate(
-      (classOfDiv: string, classOfSpan: string) => {
-        const container = document.querySelector(classOfDiv);
-
-        const geo_title = Array.from(
-          container.querySelectorAll(`span${classOfSpan}`)
-        );
-        const data = geo_title.map((elem) => elem.textContent.trim());
-        return data;
-      },
-      classOfDiv,
-      classOfSpan
-    );
-
-    console.log("table_data", table_data);
-  } catch (e) {
-    console.log(`Error ${e}`);
-  } finally {
-    await browser.close();
-  }
-};
 
 /**
  * @description CONAD test
@@ -319,18 +175,271 @@ export const conad_promotions = async () => {
     await browser.close();
     console.log("Dati scaricati correttamente!");
     return elementsData;
-
-    /**
-     * Reasearch fot html code
-     */
-    // const divTaglioPrezzo = await page.$(".rt032-filter-popup.open");
-
-    // const text = await divTaglioPrezzo.evaluate((e) => e.innerHTML);
-
-    // console.log("____________________");
-    // console.log(text);
-    // console.log("____________________");
   } catch (e) {
     console.log(`Error ${e}`);
   }
 };
+
+export const coop_promotions = async () => {
+  let browser: Browser;
+  try {
+    browser = await puppeteer.launch({
+      headless: false,
+      defaultViewport: { width: 1280, height: 800 },
+    });
+    const page = await browser.newPage();
+    console.log("Browser aperto ");
+    await page.setDefaultNavigationTimeout(60000);
+    await page.goto(url_coop_emilia);
+    console.log("Pagina aperta coop 🔍");
+
+    // await page.waitForSelector(".iubenda-cs-rationale");
+    const popup = await page.$(".iubenda-cs-rationale");
+    if (popup) {
+      await page.waitForSelector(
+        ".iubenda-cs-accept-btn.iubenda-cs-btn-primary"
+      );
+      await page.click(".iubenda-cs-accept-btn.iubenda-cs-btn-primary");
+    }
+
+    await page.waitForSelector(".product-grid");
+    const gridElement = await page.$(".product-grid");
+    await page.waitForSelector(".product-grid__item");
+    await page.waitForSelector(".product-tile");
+
+    const elementsData: ConadProduct[] = await gridElement.$$eval(
+      ".product-tile",
+
+      (elements) =>
+        Promise.all(
+          elements.map(async (item) => {
+            const nameElement = item.querySelector(
+              ".product-title .product-title__name"
+            );
+            const name = nameElement ? nameElement.textContent.trim() : "";
+
+            const price =
+              item.querySelector(".price__final")?.textContent || "";
+            const img =
+              item.querySelector(".product-tile__image")?.getAttribute("src") ||
+              "";
+            const unitCostElement = item.querySelector(
+              "span.product-tile__price-per-qty"
+            );
+            const unitCost = unitCostElement
+              ? unitCostElement.textContent.trim()
+              : "";
+
+            const promotion =
+              item.querySelector(".price__discount")?.textContent || "";
+            const validity =
+              item.querySelector(".price__discount-end-date")?.textContent ||
+              "";
+
+            return { name, price, img, unitCost, promotion, validity };
+          })
+        )
+    );
+
+    console.log(elementsData);
+
+    //TODO: click on the button for change page
+
+    // const productsGrid
+    /**
+     * Reasearch fot html code
+     */
+    // await page.waitForSelector(".product-grid__item");
+    // const element = await page.$(".product-grid__item");
+
+    // const text = await element.evaluate((e) => e.innerHTML);
+
+    // console.log("____________________");
+    // console.log(text);
+    // console.log("____________________");
+  } catch (error) {
+    console.log("COOP ERROR" + error);
+  }
+};
+
+// export const coop_promotions = async () => {
+//   let browser: Browser;
+//   try {
+//     browser = await puppeteer.launch({
+//       headless: false,
+//       defaultViewport: { width: 1280, height: 800 },
+//     });
+//     const page = await browser.newPage();
+//     console.log("Browser aperto ");
+//     await page.setDefaultNavigationTimeout(60000);
+//     await page.goto(url_coop_emilia);
+//     console.log("Pagina aperta coop 🔍");
+
+//     await page.waitForSelector(".iubenda-cs-rationale");
+//     const popup = await page.$(".iubenda-cs-rationale");
+//     if (popup) {
+//       await page.waitForSelector(
+//         ".iubenda-cs-accept-btn.iubenda-cs-btn-primary"
+//       );
+//       await page.click(".iubenda-cs-accept-btn.iubenda-cs-btn-primary");
+//     }
+
+//     const products: ConadProduct[] = [];
+
+//     await page.waitForSelector(".product-grid");
+//     const gridElement = await page.$(".product-grid");
+//     await page.waitForSelector(".product-grid__item");
+//     await page.waitForSelector(".product-tile");
+
+//     const elementsData: ConadProduct[] = await gridElement.$$eval(
+//       ".product-tile",
+//       (elements) =>
+//         Promise.all(
+//           elements.map(async (item) => {
+//             const nameElement = item.querySelector(
+//               ".product-title .product-title__name"
+//             );
+//             const name = nameElement ? nameElement.textContent.trim() : "";
+
+//             const price =
+//               item.querySelector(".price__final")?.textContent || "";
+//             const img =
+//               item.querySelector(".product-tile__image")?.getAttribute("src") ||
+//               "";
+//             const unitCostElement = item.querySelector(
+//               "span.product-tile__price-per-qty"
+//             );
+//             const unitCost = unitCostElement
+//               ? unitCostElement.textContent.trim()
+//               : "";
+
+//             const promotion =
+//               item.querySelector(".price__discount")?.textContent || "";
+//             const validity =
+//               item.querySelector(".price__discount-end-date")?.textContent ||
+//               "";
+
+//             return { name, price, img, unitCost, promotion, validity };
+//           })
+//         )
+//     );
+
+//     elementsData.map((data) => products.push(data));
+
+//     let nextLink = await page.$(
+//       "li.pagination__item.pagination__item--icon.pagination__item--next > a"
+//     );
+
+//     while (nextLink) {
+//       const elementsData: ConadProduct[] = await gridElement.$$eval(
+//         ".product-tile",
+//         (elements) =>
+//           Promise.all(
+//             elements.map(async (item) => {
+//               const nameElement = item.querySelector(
+//                 ".product-title .product-title__name"
+//               );
+//               const name = nameElement ? nameElement.textContent.trim() : "";
+
+//               const price =
+//                 item.querySelector(".price__final")?.textContent || "";
+//               const img =
+//                 item
+//                   .querySelector(".product-tile__image")
+//                   ?.getAttribute("src") || "";
+//               const unitCostElement = item.querySelector(
+//                 "span.product-tile__price-per-qty"
+//               );
+//               const unitCost = unitCostElement
+//                 ? unitCostElement.textContent.trim()
+//                 : "";
+
+//               const promotion =
+//                 item.querySelector(".price__discount")?.textContent || "";
+//               const validity =
+//                 item.querySelector(".price__discount-end-date")?.textContent ||
+//                 "";
+
+//               return { name, price, img, unitCost, promotion, validity };
+//             })
+//           )
+//       );
+
+//       elementsData.map((data) => products.push(data));
+
+//       const nextLink = await page.$(
+//         "li.pagination__item.pagination__item--icon.pagination__item--next > a"
+//       );
+
+//       if (!nextLink) {
+//         break; // Esci dal ciclo se non c'è più il link "nextLink"
+//       }
+
+//       await nextLink.click();
+//       await page.waitForNavigation();
+//       await page.waitForSelector(".product-grid"); // Aspetta che la nuova pagina si carichi completamente
+//       await page.waitForSelector(".product-grid__item");
+//       await page.waitForSelector(".product-tile");
+//     }
+
+//     if (!nextLink) {
+//       await page.waitForSelector(".product-grid");
+//       const gridElement = await page.$(".product-grid");
+//       await page.waitForSelector(".product-grid__item");
+//       await page.waitForSelector(".product-tile");
+//       const elementsData: ConadProduct[] = await gridElement.$$eval(
+//         ".product-tile",
+//         (elements) =>
+//           Promise.all(
+//             elements.map(async (item) => {
+//               const nameElement = item.querySelector(
+//                 ".product-title .product-title__name"
+//               );
+//               const name = nameElement ? nameElement.textContent.trim() : "";
+
+//               const price =
+//                 item.querySelector(".price__final")?.textContent || "";
+//               const img =
+//                 item
+//                   .querySelector(".product-tile__image")
+//                   ?.getAttribute("src") || "";
+//               const unitCostElement = item.querySelector(
+//                 "span.product-tile__price-per-qty"
+//               );
+//               const unitCost = unitCostElement
+//                 ? unitCostElement.textContent.trim()
+//                 : "";
+
+//               const promotion =
+//                 item.querySelector(".price__discount")?.textContent || "";
+//               const validity =
+//                 item.querySelector(".price__discount-end-date")?.textContent ||
+//                 "";
+
+//               return { name, price, img, unitCost, promotion, validity };
+//             })
+//           )
+//       );
+//       return elementsData.map((data) => products.push(data));
+//     }
+
+//     console.log("products" + products);
+
+//     //TODO: click on the button for change page
+
+//     // const productsGrid
+//     /**
+//      * Reasearch fot html code
+//      */
+//     // await page.waitForSelector(".product-grid__item");
+//     // const element = await page.$(".product-grid__item");
+
+//     // const text = await element.evaluate((e) => e.innerHTML);
+
+//     // console.log("____________________");
+//     // console.log(text);
+//     // console.log("____________________");
+//   } catch (error) {
+//     console.log("COOP ERROR" + error);
+//   }
+// };

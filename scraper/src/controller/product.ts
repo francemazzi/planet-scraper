@@ -1,6 +1,6 @@
 import express from "express";
 import { createProduct, getProducByName } from "../db/models/product_model.js";
-import { conad_promotions } from "../models/functions.js";
+import { conad_promotions, coop_promotions } from "../models/functions.js";
 import { ConadProduct } from "../models/types.js";
 
 export const saveProduct = async (
@@ -8,9 +8,12 @@ export const saveProduct = async (
   res: express.Response
 ) => {
   try {
-    const listOfproducts: ConadProduct[] = await conad_promotions();
+    await coop_promotions();
+    const listOfConadPromotionproducts: ConadProduct[] =
+      await conad_promotions();
+
     const products = await Promise.all(
-      listOfproducts.map(async (product) => {
+      listOfConadPromotionproducts.map(async (product) => {
         const {
           name = product.name,
           price = product.price,
@@ -26,8 +29,9 @@ export const saveProduct = async (
         }
 
         const existingProduct = await getProducByName(product.name);
+
         if (existingProduct && existingProduct.price == price) {
-          return res.sendStatus(400);
+          return;
         }
 
         const newProduct = await createProduct({
@@ -53,8 +57,3 @@ export const saveProduct = async (
     return res.sendStatus(400);
   }
 };
-
-// const dataPromise: Promise<ConadProduct[]> = conad_promotions();
-// dataPromise.then((data) => {
-//   console.log(data);
-// });

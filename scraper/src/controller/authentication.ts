@@ -63,7 +63,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 
     await user.save();
 
-    res.cookie("PLANT-AUTH", user.authentication.sessionToken, {
+    res.cookie("PLANET-AUTH", user.authentication.sessionToken, {
       domain: "localhost",
       path: "/",
     });

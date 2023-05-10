@@ -44,7 +44,7 @@ export const login = async (req, res) => {
         const salt = random();
         user.authentication.sessionToken = authentication(salt, user._id.toString());
         await user.save();
-        res.cookie("PLANT-AUTH", user.authentication.sessionToken, {
+        res.cookie("PLANET-AUTH", user.authentication.sessionToken, {
             domain: "localhost",
             path: "/",
         });
