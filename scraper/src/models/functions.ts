@@ -262,21 +262,23 @@ export const coop_promotions = async () => {
       }
     }
 
+    await browser.close();
+    console.log("Dati scaricati correttamente!");
     return products;
-
-    // const productsGrid
-    /**
-     * Reasearch fot html code
-     */
-    // await page.waitForSelector(".product-grid__item");
-    // const element = await page.$(".product-grid__item");
-
-    // const text = await element.evaluate((e) => e.innerHTML);
-
-    // console.log("____________________");
-    // console.log(text);
-    // console.log("____________________");
   } catch (error) {
     console.log("COOP ERROR" + error);
   }
 };
+
+// const productsGrid
+/**
+ * Reasearch fot html code
+ */
+// await page.waitForSelector(".product-grid__item");
+// const element = await page.$(".product-grid__item");
+
+// const text = await element.evaluate((e) => e.innerHTML);
+
+// console.log("____________________");
+// console.log(text);
+// console.log("____________________");
