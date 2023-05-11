@@ -5,7 +5,7 @@ import cheerio from "cheerio";
 import getUrls from "get-urls";
 import { url, url_conad_gustalla } from "../data/costant.js";
 import puppeteer, { Browser } from "puppeteer";
-import { ConadProduct } from "./types.js";
+import { Product } from "./types.js";
 
 /**
  * FIRST TEST WITH AXIOS

@@ -1,7 +1,7 @@
 import express from "express";
 import { createProduct, getProducByName } from "../db/models/product_model.js";
 import { conad_promotions, coop_promotions } from "../models/functions.js";
-import { ConadProduct } from "../models/types.js";
+import { Product } from "../models/types.js";
 
 export const saveProduct = async (
   req: express.Request,
@@ -9,8 +9,7 @@ export const saveProduct = async (
 ) => {
   try {
     await coop_promotions();
-    const listOfConadPromotionproducts: ConadProduct[] =
-      await conad_promotions();
+    const listOfConadPromotionproducts: Product[] = await conad_promotions();
 
     const products = await Promise.all(
       listOfConadPromotionproducts.map(async (product) => {

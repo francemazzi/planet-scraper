@@ -13,7 +13,7 @@ import mongoose from "mongoose";
 import http from "http";
 import router from "./router/index.js";
 import { conad_promotions } from "./models/functions.js";
-import { ConadProduct } from "./models/types.js";
+import { Product } from "./models/types.js";
 
 //MONGODB - francemazzi -
 const MONGO_URL =

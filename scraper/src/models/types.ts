@@ -1,4 +1,4 @@
-export interface ConadProduct {
+export interface Product {
   name: string;
   price: string;
   img: string;
