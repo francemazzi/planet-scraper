@@ -53,6 +53,6 @@ export const getProductByGenericName = async (
 
     return res.status(200).json(products).end();
   } catch (error) {
-    console.log("ERR REASEARCH " + error);
+    console.log("ERR research " + error);
   }
 };
