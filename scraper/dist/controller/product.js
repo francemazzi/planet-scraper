@@ -1,5 +1,5 @@
 import { createProduct, getProducByName } from "../db/models/product_model.js";
-import { conad_promotions, coop_promotions } from "../models/functions.js";
+import { conad_promotions, coop_promotions, lidl_promotions, } from "../models/functions.js";
 //TODO: optimize this function
 const now = Date.now();
 const date = new Date(now);
@@ -9,6 +9,7 @@ const year = date.getFullYear().toString();
 const formattedDate = `${day}:${month}:${year}`;
 export const saveProduct = async (req, res) => {
     try {
+        await lidl_promotions();
         const listOfCoopPromotionproducts = await coop_promotions();
         const listOfConadPromotionproducts = await conad_promotions();
         const coopProducts = await Promise.all(listOfCoopPromotionproducts.map(async (product) => {

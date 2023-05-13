@@ -9,3 +9,6 @@ export const url_conad_gustalla: string =
 
 export const url_coop_emilia: string =
   "https://emilia1.easycoop.com/offerte/tutte-le-offerte.html"; //"https://emilia1.easycoop.com/store";
+
+export const url_lidl: string =
+  "https://www.lidl.it/c/le-offerte-per-la-tua-spesa/a10019307?channel=store&tabCode=Current_Sales_Week";

@@ -1,6 +1,10 @@
 import express from "express";
 import { createProduct, getProducByName } from "../db/models/product_model.js";
-import { conad_promotions, coop_promotions } from "../models/functions.js";
+import {
+  conad_promotions,
+  coop_promotions,
+  lidl_promotions,
+} from "../models/functions.js";
 import { Product } from "../models/types.js";
 
 //TODO: optimize this function
@@ -19,6 +23,7 @@ export const saveProduct = async (
   res: express.Response
 ) => {
   try {
+    await lidl_promotions();
     const listOfCoopPromotionproducts: Product[] = await coop_promotions();
     const listOfConadPromotionproducts: Product[] = await conad_promotions();
 

@@ -1,4 +1,6 @@
+import { Product } from "puppeteer";
 import { ProductModel } from "../product_schema.js";
+import express from "express";
 
 export const getProducts = () => ProductModel.find();
 
@@ -13,3 +15,44 @@ export const updateProductByName = (
   name: string,
   values: Record<string, any>
 ) => ProductModel.findByIdAndUpdate(name, values);
+
+// export const getProductByGenericName = async (name: string) => {
+//   try {
+//     const regex = new RegExp(name, "i");
+
+//     const products: Product[] = await ProductModel.find({
+//       name: { $regex: regex },
+//     });
+//     const { email, password } = req.body;
+//     console.dir(products);
+//     return res.status(200).json(user).end();
+//     // return products;
+//   } catch (error) {
+//     console.log("ERR REASEARCH " + error);
+//   }
+// };
+
+//
+
+export const getProductByGenericName = async (
+  req: express.Request,
+  res: express.Response
+) => {
+  try {
+    const { name } = req.body;
+
+    if (!name) {
+      return res.sendStatus(400);
+    }
+
+    const regex = new RegExp(name, "i");
+
+    const products: Product[] = await ProductModel.find({
+      name: { $regex: regex },
+    });
+
+    return res.status(200).json(products).end();
+  } catch (error) {
+    console.log("ERR REASEARCH " + error);
+  }
+};

@@ -1,4 +1,4 @@
-import { url_conad_gustalla, url_coop_emilia } from "../data/costant.js";
+import { url_conad_gustalla, url_coop_emilia, url_lidl, } from "../data/costant.js";
 import puppeteer from "puppeteer";
 /**
  * @description CONAD test
@@ -128,7 +128,7 @@ export const coop_promotions = async () => {
     let browser;
     try {
         browser = await puppeteer.launch({
-            headless: false,
+            headless: true,
             defaultViewport: { width: 1280, height: 800 },
         });
         const page = await browser.newPage();
@@ -190,14 +190,58 @@ export const coop_promotions = async () => {
         console.log("COOP ERROR" + error);
     }
 };
-// const productsGrid
-/**
- * Reasearch fot html code
- */
-// await page.waitForSelector(".product-grid__item");
-// const element = await page.$(".product-grid__item");
-// const text = await element.evaluate((e) => e.innerHTML);
-// console.log("____________________");
-// console.log(text);
-// console.log("____________________");
+export const lidl_promotions = async () => {
+    let browser;
+    try {
+        browser = await puppeteer.launch({
+            headless: false,
+            defaultViewport: { width: 1280, height: 800 },
+        });
+        const page = await browser.newPage();
+        console.log("Browser aperto ");
+        await page.setDefaultNavigationTimeout(60000);
+        await page.goto(url_lidl);
+        console.log("Pagina aperta lidl 🔍");
+        await page.waitForSelector(".cookie-alert-extended-modal");
+        const popup = await page.$(".cookie-alert-extended-modal");
+        if (popup) {
+            await page.waitForSelector(".cookie-alert-extended-button-secondary.cookie-alert-decline-button");
+            await page.click(".cookie-alert-extended-button-secondary.cookie-alert-decline-button");
+        }
+        const productList = await page.$$(".ACampaignGrid__item.ACampaignGrid__item--product");
+        const data = await Promise.all(productList.map(async (element) => {
+            await page.waitForSelector(".label__text");
+            await page.waitForSelector(".grid-box__headline.grid-box__text--dense");
+            await page.waitForSelector(".m-price__price.m-price__price--small");
+            await page.waitForSelector(".product-grid-box__image.default-image.product-grid-box__image-opaque");
+            const validity = await element.$(".label.label--blue .label__text");
+            // const name = await element.$(
+            //   ".grid-box__headline.grid-box__text--dense"
+            // );
+            // const price = await element.$(".m-price__price.m-price__price--small");
+            // const imgElement = await element.$(
+            //   ".product-grid-box__image.default-image.product-grid-box__image-opaque"
+            // );
+            // const img = await imgElement.evaluate((el) => el.getAttribute("src"));
+            // const unitCostElement = await element.$(".price-footer");
+            // const unitCostText = await unitCostElement.evaluate(
+            //   (el) => el.textContent
+            // );
+            // const weightRegex = /(\d+)\s*g/;
+            // const weightMatches = unitCostText.match(weightRegex);
+            // const weight = weightMatches ? weightMatches[1] : "";
+            // const priceRegex = /(\d+\.\d+)\s+€/;
+            // const priceMatches = unitCostText.match(priceRegex);
+            // const priceUnitCost = priceMatches ? priceMatches[1] : "";
+            // const unitCost = `${weight}kg = ${priceUnitCost}€`;
+            // const promotion = await element.$(".m-price__label");
+            // return { name, price, img, unitCost, promotion, validity };
+            return { validity };
+        }));
+        console.log("TEXT " + JSON.stringify(data));
+    }
+    catch (error) {
+        console.log("ERROR LIDL" + error);
+    }
+};
 //# sourceMappingURL=functions.js.map
