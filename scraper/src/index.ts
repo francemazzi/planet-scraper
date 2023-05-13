@@ -14,10 +14,13 @@ import http from "http";
 import router from "./router/index.js";
 import { conad_promotions } from "./models/functions.js";
 import { Product } from "./models/types.js";
+import dotenv from "dotenv";
+dotenv.config();
 
-//MONGODB - francemazzi -
-const MONGO_URL =
-  "mongodb+srv://francemazzi:8ubrtNcMUUPuTqQy@cluster0.scfwyi8.mongodb.net/?retryWrites=true&w=majority";
+const user = process.env.MONGO_URL_USER;
+const pw = process.env.MONGO_URL_PW;
+
+const MONGO_URL = `mongodb+srv://${user}:${pw}@cluster0.scfwyi8.mongodb.net/?retryWrites=true&w=majority`;
 
 //PORT OF SERVER
 const port = 8080;

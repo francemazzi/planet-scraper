@@ -5,8 +5,11 @@ import compression from "compression";
 import mongoose from "mongoose";
 import http from "http";
 import router from "./router/index.js";
-//MONGODB - francemazzi -
-const MONGO_URL = "mongodb+srv://francemazzi:8ubrtNcMUUPuTqQy@cluster0.scfwyi8.mongodb.net/?retryWrites=true&w=majority";
+import dotenv from "dotenv";
+dotenv.config();
+const user = process.env.MONGO_URL_USER;
+const pw = process.env.MONGO_URL_PW;
+const MONGO_URL = `mongodb+srv://${user}:${pw}@cluster0.scfwyi8.mongodb.net/?retryWrites=true&w=majority`;
 //PORT OF SERVER
 const port = 8080;
 const app = express();
