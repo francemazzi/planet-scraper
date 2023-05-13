@@ -10,7 +10,6 @@ When importing an index file, you cannot use the syntax import {<IMPORT-NAME>} f
 
 ## TO DO 🔥
 
-- Integration with db
-- Scrape data from other websites such as Lidl, Coop, etc.
+- Scrape data from other websites such as Lidl, md, metro, etc.
 - Optimize API with dynamic reloading of data
 - Create frontend using React and TypeScript.
