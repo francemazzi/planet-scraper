@@ -311,7 +311,13 @@ export const lidl_promotions = async () => {
           ".product-grid-box__image.default-image.product-grid-box__image-opaque"
         );
 
-        const validity = await element.$(".label.label--blue .label__text");
+        const spanElement = await element.$(
+          ".image-ribbon-blue > .label__text"
+        );
+        const validity = await element.evaluate(
+          (span) => span.textContent,
+          spanElement
+        );
 
         // const name = await element.$(
         //   ".grid-box__headline.grid-box__text--dense"
