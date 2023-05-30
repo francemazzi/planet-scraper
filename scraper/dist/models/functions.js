@@ -214,32 +214,62 @@ export const lidl_promotions = async () => {
             await page.waitForSelector(".grid-box__headline.grid-box__text--dense");
             await page.waitForSelector(".m-price__price.m-price__price--small");
             await page.waitForSelector(".product-grid-box__image.default-image.product-grid-box__image-opaque");
-            const spanElement = await element.$(".image-ribbon-blue > .label__text");
-            const validity = await element.evaluate((span) => span.textContent, spanElement);
-            // const name = await element.$(
-            //   ".grid-box__headline.grid-box__text--dense"
-            // );
-            // const price = await element.$(".m-price__price.m-price__price--small");
-            // const imgElement = await element.$(
-            //   ".product-grid-box__image.default-image.product-grid-box__image-opaque"
-            // );
-            // const img = await imgElement.evaluate((el) => el.getAttribute("src"));
-            // const unitCostElement = await element.$(".price-footer");
-            // const unitCostText = await unitCostElement.evaluate(
-            //   (el) => el.textContent
-            // );
-            // const weightRegex = /(\d+)\s*g/;
-            // const weightMatches = unitCostText.match(weightRegex);
-            // const weight = weightMatches ? weightMatches[1] : "";
-            // const priceRegex = /(\d+\.\d+)\s+€/;
-            // const priceMatches = unitCostText.match(priceRegex);
-            // const priceUnitCost = priceMatches ? priceMatches[1] : "";
-            // const unitCost = `${weight}kg = ${priceUnitCost}€`;
-            // const promotion = await element.$(".m-price__label");
-            // return { name, price, img, unitCost, promotion, validity };
-            return { validity };
+            let validity;
+            const spanElement = await page.$(".label.label--blue span");
+            if (spanElement != null) {
+                validity = await spanElement.evaluate((e) => e.innerHTML);
+            }
+            else {
+                validity = "";
+            }
+            const dataName = await page.$(".grid-box__headline.grid-box__text--dense");
+            const name = await page.evaluate((h2) => {
+                const supElement = h2.querySelector("sup");
+                if (supElement) {
+                    supElement.remove();
+                }
+                return h2.textContent.trim();
+            }, dataName);
+            const price = await element.$(".m-price__price.m-price__price--small");
+            const imgElement = await element.$(".product-grid-box__image.default-image.product-grid-box__image-opaque");
+            const img = await imgElement.evaluate((el) => el.getAttribute("src"));
+            const textElement = await element.$(".price-footer");
+            const text = await page.evaluate((element) => element.textContent, textElement);
+            const regex = /1kg = ([0-9.]+) €/;
+            const match = text.match(regex);
+            const unitCost = match ? `${match[1]} €/kg` : "";
+            let promotion;
+            const promotionData = await element.$(".product-price-discount");
+            if (promotionData != null) {
+                promotion = promotionData;
+            }
+            else {
+                promotion = "";
+            }
+            console.log("name " +
+                name +
+                " price " +
+                price +
+                " img " +
+                img +
+                " unitCost " +
+                unitCost +
+                " promotion " +
+                promotion +
+                " validity " +
+                validity);
+            return { name, price, img, unitCost, promotion, validity };
+            /**
+             * Reasearch fot html code
+             */
+            // const data = await page.$(".price-footer");
+            // const textData = await data.evaluate((e) => e.innerHTML);
+            // console.log("____________________");
+            // console.log(img);
+            // console.log("____________________");
+            // return { validity };
         }));
-        console.log("TEXT " + JSON.stringify(data));
+        // console.log("TEXT " + JSON.stringify(data));
     }
     catch (error) {
         console.log("ERROR LIDL" + error);

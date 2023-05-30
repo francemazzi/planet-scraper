@@ -23,7 +23,7 @@ export const saveProduct = async (
   res: express.Response
 ) => {
   try {
-    await lidl_promotions();
+    // await lidl_promotions();
     const listOfCoopPromotionproducts: Product[] = await coop_promotions();
     const listOfConadPromotionproducts: Product[] = await conad_promotions();
 
